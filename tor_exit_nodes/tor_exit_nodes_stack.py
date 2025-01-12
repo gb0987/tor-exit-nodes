@@ -33,9 +33,23 @@ class TorExitNodesStack(Stack):
         api.root.add_resource("health").add_method(
             "GET", apigw.LambdaIntegration(handler)
         )
-
         nodes = api.root.add_resource("nodes")
         nodes.add_method("GET", apigw.LambdaIntegration(handler))  # list
         node = nodes.add_resource("{ip}")
         node.add_method("GET", apigw.LambdaIntegration(handler))  # check
         node.add_method("DELETE", apigw.LambdaIntegration(handler))  # delete
+
+        rule = events.Rule(
+            self,
+            "ScheduledUpdateRule",
+            schedule=events.Schedule.rate(Duration.days(1)),
+            targets=[
+                targets.LambdaFunction(
+                    handler,
+                    event=events.RuleTargetInput.from_object(
+                        {"detail_type": "ScheduledUpdateRule"}
+                    ),
+                )
+            ],
+        )
+        rule.add_target(targets.LambdaFunction(handler))

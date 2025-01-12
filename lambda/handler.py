@@ -10,8 +10,10 @@ import boto3
 s3 = boto3.client("s3")
 BUCKET_NAME = os.environ["BUCKET_NAME"]
 
+# More specific typing feels like overkill in this case.
 
-def api_response(f: Callable):
+
+def api_response(f: Callable) -> Callable:
     @wraps(f)
     def wrapper(*args, **kwargs):
         try:
@@ -23,8 +25,8 @@ def api_response(f: Callable):
     return wrapper
 
 
-def lambda_handler(event, context):
-    if event.get("detail_type") == "ScheduledUpdate":
+def lambda_handler(event: dict, context):
+    if event.get("detail_type") == "ScheduledUpdateRule":
         return update_nodes()
     try:
         match (event["resource"], event["httpMethod"]):
@@ -43,7 +45,7 @@ def lambda_handler(event, context):
         return {"statusCode": 400, "body": f"Bad request: {str(e)}"}
 
 
-def _write_nodes(nodes: set):
+def _write_nodes(nodes: set) -> None:
     s3.put_object(Bucket=BUCKET_NAME, Key="tor_nodes.pickle", Body=pickle.dumps(nodes))
 
 
@@ -58,9 +60,8 @@ def _read_nodes() -> set:
         return pickle.loads(response["Body"].read())
 
 
-# TODO: schedule this to run at regular intervals! daily, or however often the list actually gets updated!
 @api_response
-def update_nodes():
+def update_nodes() -> None:
     url = "https://secureupdates.checkpoint.com/IP-list/TOR.txt"
     with urllib.request.urlopen(url) as response:
         _write_nodes(set(response.read().decode().splitlines()))
@@ -73,13 +74,13 @@ def check(ip: str) -> bool:
 
 
 @api_response
-def list_nodes():
+def list_nodes() -> str:
     nodes = _read_nodes()
     return json.dumps(list(nodes))
 
 
 @api_response
-def delete_node(ip: str):
+def delete_node(ip: str) -> None:
     nodes = _read_nodes()
     nodes.remove(ip)
     _write_nodes(nodes)
