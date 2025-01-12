@@ -1,77 +1,35 @@
-# Local setup
+# Local Setup
 
-This should be made into a local setup scriptby the end! If it isn't, I didn't have time. 
+These setup instructions are written for OSX.
 
-<!-- 
+## If you're starting fresh
 
-Standard python setup stuff. venv, install requirements.
+You need an [AWS account](https://aws.amazon.com/resources/create-account/) and you need to [install the AWS CDK.](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html) The CDK has [a couple prerequisites](https://docs.aws.amazon.com/cdk/v2/guide/prerequisites.html). With that done, Run ```aws configure``` and enter [your credentials](https://aws.amazon.com/blogs/security/how-to-find-update-access-keys-password-mfa-aws-management-console/).
+You'll need Python, (your system Python is probably fine if you have one). 
+
+## Otherwise, 
+No special setup is needed.
 ```
-python3 -m venv .venv
-source .venv/bin/activate
-```
-Need npm to install aws cdk
-```
-npm install -g aws-cdk
-```
+# Make the venv:
+python -m venv .venv
+source .venv/bin/activate  
 
-python -m ensurepip --upgrade
-python -m pip install --upgrade pip
-python -m pip install --upgrade virtualenv
-
-``` 
+# Install dependencies (this project only has the default AWS CDK project deps):
 pip install -r requirements.txt
-``` -->
 
+# Run bootstrap (first time only):
+cdk bootstrap
 
+# Synth if you want to test without deploying:
+cdk synth
 
-
-# Welcome to your CDK Python project!
-
-This is a blank project for CDK development with Python.
-
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
-
-This project is set up like a standard Python project.  The initialization
-process also creates a virtualenv within this project, stored under the `.venv`
-directory.  To create the virtualenv it assumes that there is a `python3`
-(or `python` for Windows) executable in your path with access to the `venv`
-package. If for any reason the automatic creation of the virtualenv fails,
-you can create the virtualenv manually.
-
-To manually create a virtualenv on MacOS and Linux:
-
+# Deploy
+cdk deploy
 ```
-$ python3 -m venv .venv
-```
+If you're on windows you'll have to make some adjustments. I recommend WSL in that case though, then you can just use this script.
 
-After the init process completes and the virtualenv is created, you can use the following
-step to activate your virtualenv.
 
-```
-$ source .venv/bin/activate
-```
 
-If you are a Windows platform, you would activate the virtualenv like this:
-
-```
-% .venv\Scripts\activate.bat
-```
-
-Once the virtualenv is activated, you can install the required dependencies.
-
-```
-$ pip install -r requirements.txt
-```
-
-At this point you can now synthesize the CloudFormation template for this code.
-
-```
-$ cdk synth
-```
-
-To add additional dependencies, for example other CDK libraries, just add
-them to your `setup.py` file and rerun the `pip install -r requirements.txt`
-command.
 
 ## Useful commands
 
@@ -80,5 +38,3 @@ command.
  * `cdk deploy`      deploy this stack to your default AWS account/region
  * `cdk diff`        compare deployed stack with current state
  * `cdk docs`        open CDK documentation
-
-Enjoy!

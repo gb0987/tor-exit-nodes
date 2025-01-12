@@ -9,4 +9,6 @@ __pycache__
 .cdk.staging
 cdk.out
 
+# Not AWS CDK default
 original.pdf
+/.mypy_cache
