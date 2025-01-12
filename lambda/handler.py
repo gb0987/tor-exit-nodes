@@ -1,11 +1,10 @@
-# lambda/handler.py
 import pickle
 import os
 from functools import wraps
 from typing import Callable
 import json
+import urllib.request
 
-import requests
 import boto3
 
 s3 = boto3.client("s3")
@@ -30,12 +29,13 @@ def lambda_handler(event, context):
     try:
         match (event["resource"], event["httpMethod"]):
             case ("/health", "GET"):
+                print(f"Health check event: {json.dumps(event)}")
                 return {"statusCode": 200, "body": "OK"}
-            case ("/list", "GET"):
+            case ("/nodes", "GET"):
                 return list_nodes()
-            case ("/check/{ip}", "GET"):
+            case ("/nodes/{ip}", "GET"):
                 return check(event["pathParameters"]["ip"])
-            case ("/delete/{ip}", "DELETE"):
+            case ("/nodes/{ip}", "DELETE"):
                 return delete_node(event["pathParameters"]["ip"])
             case _:
                 return {"statusCode": 405, "body": "Method not allowed"}
@@ -48,21 +48,22 @@ def _write_nodes(nodes: set):
 
 
 def _read_nodes() -> set:
-    response = s3.get_object(Bucket=BUCKET_NAME, Key="tor_nodes.pickle")
-    return pickle.loads(response["Body"].read())
+    try:
+        response = s3.get_object(Bucket=BUCKET_NAME, Key="tor_nodes.pickle")
+        return pickle.loads(response["Body"].read())
+    # catch case where we have no nodes yet
+    except (s3.exceptions.NoSuchKey, s3.exceptions.NoSuchBucket):
+        update_nodes()
+        response = s3.get_object(Bucket=BUCKET_NAME, Key="tor_nodes.pickle")
+        return pickle.loads(response["Body"].read())
 
 
 # TODO: schedule this to run at regular intervals! daily, or however often the list actually gets updated!
-
-
 @api_response
 def update_nodes():
-    response = requests.get("https://secureupdates.checkpoint.com/IP-list/TOR.txt")
-    response.raise_for_status()
-    # this could be .. idk redis instead of pickled. but why invoke another aws service, we just gonna keep overwriting the whole thing, we're just adding complexity and slowing down calls at that point
-    # could also format the ips in some other way at this point. right now we even include the brackets!
-    response = set(response.text.splitlines())
-    _write_nodes(response)
+    url = "https://secureupdates.checkpoint.com/IP-list/TOR.txt"
+    with urllib.request.urlopen(url) as response:
+        _write_nodes(set(response.read().decode().splitlines()))
 
 
 @api_response

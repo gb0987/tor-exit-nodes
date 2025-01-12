@@ -30,18 +30,12 @@ class TorExitNodesStack(Stack):
         bucket.grant_read_write(handler)
 
         api = apigw.RestApi(self, "TorNodesApi")
+        api.root.add_resource("health").add_method(
+            "GET", apigw.LambdaIntegration(handler)
+        )
 
-        
-        check_resource = api.root.add_resource("check")
-        ip_resource = check_resource.add_resource("{ip}")
-        
-        
-        ip_resource.add_method("GET", apigw.LambdaIntegration(handler))
-
-        # The code that defines your stack goes here
-
-        # example resource
-        # queue = sqs.Queue(
-        #     self, "TorExitNodesQueue",
-        #     visibility_timeout=Duration.seconds(300),
-        # )
+        nodes = api.root.add_resource("nodes")
+        nodes.add_method("GET", apigw.LambdaIntegration(handler))  # list
+        node = nodes.add_resource("{ip}")
+        node.add_method("GET", apigw.LambdaIntegration(handler))  # check
+        node.add_method("DELETE", apigw.LambdaIntegration(handler))  # delete
