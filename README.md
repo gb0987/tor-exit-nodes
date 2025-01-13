@@ -11,7 +11,7 @@ You'll need Python, (your system Python is probably fine if you have one).
 
 ```bash 
 # Make the venv:
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate  
 
 # Install dependencies (this project only has the default AWS CDK project dependencies):
@@ -121,13 +121,16 @@ Response if IP not found:
 }
 ```
 
-## Tests
+# Tests
 I included some very basic tests.
 
 ```python -m pytest tests/unit```
 
 
-### Testing from Terminal
+## Testing from Terminal
+
+Use the [invoke URL](https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-call-api.html).
+
 ```bash
 export TEST_API_URL=https://your-actual-api-url.com
 # Health check
@@ -143,10 +146,10 @@ curl -X DELETE $TEST_API_URL/nodes/1.2.3.4
 Note that passing brackets in with a IPv6 url will cause issues when using curl, you can just omit them.
 
 
-## Possible Improvements
+# Possible Improvements
 
-Pickling is very fast and extremely cheap. If we needed to go much much faster, the API could use DynamoDB instead, but that seems like overkill for this. 
+Storing pickled files in s3 and reading them with lambda is fast and extremely cheap. If we needed to go much much faster, the API could use DynamoDB instead, but that seems like overkill. 
 
-API Gateway has aggressive throttling so that we can't exceed free tier by much. It could have some kind of usage quota and API keys instead. Again, seemed like overkill.
+The API Gateway has aggressive throttling so that we can't exceed free tier by much. It could have some kind of usage quota and API keys instead. Again, seemed like overkill.
 
-Finally, deletions don't persist through the daily update of the IP list. I started implementing this, it's in the "better-delete" branch. It wouldn't be difficult to add, but it would effectively be a blacklist/exclusionlist which should then include even more functionality, at minimum you should be able to reset the list. At that point it would make more sense to just have all the CRUD functions, a full API, and maintain a parallel database with some updates from CheckPoint. That was not the ask, so I kept it simple instead.
+Finally, deletions don't persist through the daily update of the IP list. It wouldn't be difficult to add, but it would effectively be a blacklist/exclusionlist which should then have even more functionality. At minimum, you should be able to reset the list. At that point it would make more sense to just have all the CRUD functions, a full API, just maintain a parallel Tor nodes database with some updates from CheckPoint. That was not the ask, so I kept it simple instead.
