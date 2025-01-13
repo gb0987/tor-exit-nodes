@@ -29,7 +29,13 @@ class TorExitNodesStack(Stack):
 
         bucket.grant_read_write(handler)
 
-        api = apigw.RestApi(self, "TorNodesApi")
+        api = apigw.RestApi(
+            self,
+            "TorNodesApi",
+            deploy_options=apigw.StageOptions(
+                throttling_rate_limit=1, throttling_burst_limit=5
+            ),
+        )
         api.root.add_resource("health").add_method(
             "GET", apigw.LambdaIntegration(handler)
         )

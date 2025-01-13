@@ -1,6 +1,6 @@
 # Local Setup
 
-These setup instructions are written for OSX.
+These setup instructions are written for OSX. 
 
 ## If you're starting fresh
 
@@ -137,3 +137,9 @@ curl $TEST_API_URL/nodes/1.2.3.4
 # Delete node
 curl -X DELETE $TEST_API_URL/nodes/1.2.3.4
 ```
+
+## Possible Improvements
+
+Pickling is very fast and extremely cheap. If we needed to go much much faster, the API could use DynamoDB instead, but that seems like overkill for this. 
+
+API Gateway has aggressive throttling so that we can't exceed free tier by much. It could have some kind of usage quota and API keys instead. Again, seemed like overkill.
