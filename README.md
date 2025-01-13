@@ -30,7 +30,7 @@ You may want to install dev dependencies for local work.
 
 ```pip install -r requirements-dev.txt```
 
-## Docs
+# Docs
 
 Simple API for managing a list of known Tor exit nodes. The list is automatically updated daily from CheckPoint's database.
 
