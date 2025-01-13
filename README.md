@@ -8,9 +8,7 @@ You need an [AWS account](https://aws.amazon.com/resources/create-account/) and 
 You'll need Python, (your system Python is probably fine if you have one). 
 
 ## Otherwise, 
-No special setup is needed.
-```
-# Make the venv:
+```# Make the venv:
 python -m venv .venv
 source .venv/bin/activate  
 
@@ -26,15 +24,102 @@ cdk synth
 # Deploy
 cdk deploy
 ```
-If you're on windows you'll have to make some adjustments. I recommend WSL in that case though, then you can just use this script.
+If you're on windows you'll have to make some adjustments. I recommend [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) in that case though, then you can just use this script.
 
+You may want to install dev dependencies for local work.
 
+```pip install -r requirements-dev.txt```
 
+## Docs
 
-## Useful commands
+Simple API for managing a list of known Tor exit nodes. The list is automatically updated daily from CheckPoint's database.
 
- * `cdk ls`          list all stacks in the app
- * `cdk synth`       emits the synthesized CloudFormation template
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk docs`        open CDK documentation
+## Endpoints
+
+### Health Check
+
+Simple function to check if server is up.
+
+```
+GET /health
+```
+
+Response:
+
+```json
+{
+    "statusCode": 200,
+    "body": "OK"
+}
+```
+
+### List All Nodes
+
+Returns all known Tor exit nodes.
+
+```
+GET /nodes
+```
+
+Response:
+
+```json
+{
+    "statusCode": 200,
+    "body": ["1.2.3.4", "5.6.7.8"]
+}
+```
+
+### Check Node
+
+Check if a particular address is a Tor exit node. Returns "true" or "false".
+
+```
+GET /nodes/{ip}
+```
+
+Parameters:
+- `ip`: IP address to check
+
+Response:
+
+```json
+{
+    "statusCode": 200,
+    "body": "true" 
+}
+```
+
+### Delete Node
+
+```
+DELETE /nodes/{ip}
+```
+
+Parameters:
+- `ip`: IP address to remove
+
+Response:
+
+```json
+{
+    "statusCode": 200,
+    "body": "None"
+}
+```
+
+## Testing in Terminal
+
+```bash
+# Health check
+curl https://YOUR_API_URL/health
+
+# List all nodes
+curl https://YOUR_API_URL/nodes
+
+# Check specific IP
+curl https://YOUR_API_URL/nodes/1.2.3.4
+
+# Delete node
+curl -X DELETE https://YOUR_API_URL/nodes/1.2.3.4
+```
