@@ -4,6 +4,7 @@ from functools import wraps
 from typing import Callable
 import json
 import urllib.request
+import ipaddress
 
 import boto3
 
@@ -31,9 +32,9 @@ def lambda_handler(event: dict, context):
     if event.get("detail_type") == "ScheduledUpdateRule":
         return update_nodes()
     try:
+        print(f"Event: {event}")  # Very basic logging. Could be expanded.
         match (event["resource"], event["httpMethod"]):
             case ("/health", "GET"):
-                print(f"Health check event: {json.dumps(event)}")
                 return {"statusCode": 200, "body": "OK"}
             case ("/nodes", "GET"):
                 return list_nodes()
@@ -62,6 +63,19 @@ def _read_nodes() -> set:
         return pickle.loads(response["Body"].read())
 
 
+def _clean_ip(ip: str) -> str:
+    ip = urllib.parse.unquote(ip)
+    ip = ip.strip("[]")
+    try:
+        ip = ipaddress.ip_address(ip)
+        if isinstance(ip, ipaddress.IPv6Address):
+            return f"[{ip.exploded}]"
+        else:
+            return str(ip)
+    except ValueError:
+        raise ValueError(f"Invalid IP address: {ip}")
+
+
 @api_response
 def update_nodes() -> None:
     url = "https://secureupdates.checkpoint.com/IP-list/TOR.txt"
@@ -72,7 +86,7 @@ def update_nodes() -> None:
 @api_response
 def check(ip: str) -> bool:
     nodes = _read_nodes()
-    return ip in nodes
+    return _clean_ip(ip) in nodes
 
 
 @api_response
@@ -84,6 +98,7 @@ def list_nodes() -> str:
 @api_response
 def delete_node(ip: str) -> None:
     nodes = _read_nodes()
+    ip = _clean_ip(ip)
     if ip not in nodes:
         return {"statusCode": 404, "body": "IP not found"}
     nodes.remove(ip)

@@ -36,6 +36,8 @@ You may want to install dev dependencies for local work.
 
 This is a simple API for managing a list of known Tor exit nodes. The list is automatically updated daily from [CheckPoint's database]("https://secureupdates.checkpoint.com/IP-list/TOR.txt").
 
+IPv6 addresses can be passed in any form. They will be converted to exploded/long/full form.
+
 ## Endpoints
 
 ### Health Check
@@ -138,8 +140,13 @@ curl $TEST_API_URL/nodes/1.2.3.4
 curl -X DELETE $TEST_API_URL/nodes/1.2.3.4
 ```
 
+Note that passing brackets in with a IPv6 url will cause issues when using curl, you can just omit them.
+
+
 ## Possible Improvements
 
 Pickling is very fast and extremely cheap. If we needed to go much much faster, the API could use DynamoDB instead, but that seems like overkill for this. 
 
 API Gateway has aggressive throttling so that we can't exceed free tier by much. It could have some kind of usage quota and API keys instead. Again, seemed like overkill.
+
+Finally, deletions don't persist through the daily update of the IP list. I started implementing this, it's in the "better-delete" branch. It wouldn't be difficult to add, but it would effectively be a blacklist/exclusionlist which should then include even more functionality, at minimum you should be able to reset the list. At that point it would make more sense to just have all the CRUD functions, a full API, and maintain a parallel database with some updates from CheckPoint. That was not the ask, so I kept it simple instead.
