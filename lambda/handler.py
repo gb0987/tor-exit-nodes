@@ -18,6 +18,8 @@ def api_response(f: Callable) -> Callable:
     def wrapper(*args, **kwargs):
         try:
             result = f(*args, **kwargs)
+            if isinstance(result, dict) and "statusCode" in result:
+                return result
             return {"statusCode": 200, "body": str(result)}
         except Exception as e:
             return {"statusCode": 500, "body": str(e)}
@@ -46,7 +48,7 @@ def lambda_handler(event: dict, context):
 
 
 def _write_nodes(nodes: set) -> None:
-    # I've considered using something more showy but this doesn't need to be encrypted at rest, it doesn't need to scale. It's a small list of publically available IPs, the fastest and cheapest solution is just to pickle.
+    # I considered using something flashier, but that wouldn't make sense. It doesn't need to be encrypted at rest and it doesn't need to scale. It's a small list of publically available IPs, the fastest and cheapest solution is just to pickle.
     s3.put_object(Bucket=BUCKET_NAME, Key="tor_nodes.pickle", Body=pickle.dumps(nodes))
 
 
@@ -82,5 +84,8 @@ def list_nodes() -> str:
 @api_response
 def delete_node(ip: str) -> None:
     nodes = _read_nodes()
-    nodes.discard(ip)
+    if ip not in nodes:
+        return {"statusCode": 404, "body": "IP not found"}
+    nodes.remove(ip)
     _write_nodes(nodes)
+    return {"statusCode": 200, "body": "Deleted"}

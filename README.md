@@ -14,7 +14,7 @@ You'll need Python, (your system Python is probably fine if you have one).
 python -m venv .venv
 source .venv/bin/activate  
 
-# Install dependencies (this project only has the default AWS CDK project deps):
+# Install dependencies (this project only has the default AWS CDK project dependencies):
 pip install -r requirements.txt
 
 # Run bootstrap (first time only):
@@ -34,13 +34,13 @@ You may want to install dev dependencies for local work.
 
 # Docs
 
-Simple API for managing a list of known Tor exit nodes. The list is automatically updated daily from CheckPoint's database.
+This is a simple API for managing a list of known Tor exit nodes. The list is automatically updated daily from [CheckPoint's database]("https://secureupdates.checkpoint.com/IP-list/TOR.txt").
 
 ## Endpoints
 
 ### Health Check
 
-Simple function to check if server is up.
+Simple function to check if the server is up.
 
 ```bash
 GET /health
@@ -101,12 +101,21 @@ DELETE /nodes/{ip}
 Parameters:
 - `ip`: IP address to remove
 
-Response:
+Response if IP exists:
 
 ```json
 {
     "statusCode": 200,
-    "body": "None"
+    "body": "Deleted"
+}
+```
+
+Response if IP not found:
+
+```json
+{
+    "statusCode": 404,
+    "body": "IP not found"
 }
 ```
 
