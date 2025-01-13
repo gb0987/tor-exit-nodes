@@ -82,5 +82,5 @@ def list_nodes() -> str:
 @api_response
 def delete_node(ip: str) -> None:
     nodes = _read_nodes()
-    nodes.remove(ip)
+    nodes.discard(ip)
     _write_nodes(nodes)
