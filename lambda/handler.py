@@ -46,6 +46,7 @@ def lambda_handler(event: dict, context):
 
 
 def _write_nodes(nodes: set) -> None:
+    # I've considered using something more showy but this doesn't need to be encrypted at rest, it doesn't need to scale. It's a small list of publically available IPs, the fastest and cheapest solution is just to pickle.
     s3.put_object(Bucket=BUCKET_NAME, Key="tor_nodes.pickle", Body=pickle.dumps(nodes))
 
 
@@ -53,7 +54,6 @@ def _read_nodes() -> set:
     try:
         response = s3.get_object(Bucket=BUCKET_NAME, Key="tor_nodes.pickle")
         return pickle.loads(response["Body"].read())
-    # catch case where we have no nodes yet
     except (s3.exceptions.NoSuchKey, s3.exceptions.NoSuchBucket):
         update_nodes()
         response = s3.get_object(Bucket=BUCKET_NAME, Key="tor_nodes.pickle")

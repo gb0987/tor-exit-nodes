@@ -7,8 +7,10 @@ These setup instructions are written for OSX.
 You need an [AWS account](https://aws.amazon.com/resources/create-account/) and you need to [install the AWS CDK.](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html) The CDK has [a couple prerequisites](https://docs.aws.amazon.com/cdk/v2/guide/prerequisites.html). With that done, Run ```aws configure``` and enter [your credentials](https://aws.amazon.com/blogs/security/how-to-find-update-access-keys-password-mfa-aws-management-console/).
 You'll need Python, (your system Python is probably fine if you have one). 
 
-## Otherwise, 
-```# Make the venv:
+## Normal Setup 
+
+```bash 
+# Make the venv:
 python -m venv .venv
 source .venv/bin/activate  
 
@@ -40,7 +42,7 @@ Simple API for managing a list of known Tor exit nodes. The list is automaticall
 
 Simple function to check if server is up.
 
-```
+```bash
 GET /health
 ```
 
@@ -108,18 +110,21 @@ Response:
 }
 ```
 
-## Testing in Terminal
+## Tests
+I included some very basic tests.
 
+```python -m pytest tests/unit```
+
+
+### Testing from Terminal
 ```bash
+export TEST_API_URL=https://your-actual-api-url.com
 # Health check
-curl https://YOUR_API_URL/health
-
+curl $TEST_API_URL/health
 # List all nodes
-curl https://YOUR_API_URL/nodes
-
+curl $TEST_API_URL/nodes
 # Check specific IP
-curl https://YOUR_API_URL/nodes/1.2.3.4
-
+curl $TEST_API_URL/nodes/1.2.3.4
 # Delete node
-curl -X DELETE https://YOUR_API_URL/nodes/1.2.3.4
+curl -X DELETE $TEST_API_URL/nodes/1.2.3.4
 ```
