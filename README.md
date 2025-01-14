@@ -1,6 +1,6 @@
 # Local Setup
 
-These setup instructions are written for OSX. 
+These setup instructions were written for macOS. 
 
 ## If you're starting fresh
 
