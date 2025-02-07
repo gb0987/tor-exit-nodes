@@ -1,3 +1,5 @@
+# Context
+
 This was a take home data engineering project. I passed that round, made it 7 rounds(?) deep, but it didn't work out. Leaving it up here. Will post more info later. Haven't changed it since then so there's one dumb little redundant line I noticed after I sent it in, keep your eyes peeled for it if you go through the repo.
 
 # Local Setup
